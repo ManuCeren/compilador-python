@@ -50,46 +50,50 @@ class Lexer:
     # TODO: Definir los patrones de expresiones regulares en orden de prioridad.
     # Formato: ('NOMBRE_DEL_TOKEN', r'expresion_regular')
     TOKEN_SPECIFICATION = [
-        # --- ELEMENTOS A IGNORAR / ESPACIOS ---
-        ('NEWLINE',        r'\n'),
-        ('SKIP',           r'[ \t\r]+'),
-        
-        # TODO: Agregar patrones para comentarios (única línea y multilínea)
-        # ('COMMENT_SINGLE', r'...'),
-        # ('COMMENT_MULTI',  r'...'),
+        ('COMMENT_MULTI',       r'/\*[\s\S]*?\*/'),
+        ('COMMENT_SINGLE',      r'//[^\n]*'),
+        ('NEWLINE',             r'\n'),
+        ('SKIP',                r'[ \t\r]+'),
 
-        # --- LITERALES ---
-        # TODO: Agregar patrones para números enteros, flotantes y strings
-        # ('FLOAT_LITERAL',  r'...'),
-        # ('INT_LITERAL',    r'...'),
-        # ('STRING_LITERAL', r'...'),
+        ('FLOAT_LITERAL',       r'\d+\.\d+'),
+        ('INT_LITERAL',         r'\d+'),
+        ('STRING_LITERAL',      r'"([^"\n\\]|\\.)*"'),
 
-        # --- PALABRAS RESERVADAS E IDENTIFICADORES ---
-        # TODO: Agregar patrones para palabras clave e identificadores
-        # ('KEYWORD',        r'...'),
-        # ('ID',             r'...'),
+        ('UNTERMINATED_STRING', r'"[^"\n]*'),
 
-        # --- OPERADORES Y DELIMITADORES ---
-        # TODO: Agregar patrones para operadores (+, -, ==, =, etc.) y delimitadores ((, ), {, }, ;, etc.)
-        # ('OP_REL',         r'...'),
-        # ('OP_ASSIGN',      r'...'),
-        # ('DELIM_SEMICOLON',r'...'),
+        ('ID',                  r'[a-zA-Z_][a-zA-Z0-9_]*'),
 
-        # --- CAPTURA DE ERRORES ---
-        # TODO: Patrón para detectar cadenas sin cerrar
-        # ('UNTERMINATED_STRING', r'...'),
+        ('OP_EQ',               r'=='),
+        ('OP_NEQ',              r'!='),
+        ('OP_LE',               r'<='),
+        ('OP_GE',               r'>='),
+        ('OP_LT',               r'<'),
+        ('OP_GT',               r'>'),
+        ('OP_ASSIGN',           r'='),
+        ('OP_PLUS',             r'\+'),
+        ('OP_MINUS',            r'-'),
+        ('OP_MUL',              r'\*'),
+        ('OP_DIV',              r'/'),
 
-        # Comodín para capturar cualquier otro carácter no reconocido (Error Léxico)
-        ('MISMATCH',       r'.'),
+        ('LPAREN',              r'\('),
+        ('RPAREN',              r'\)'),
+        ('LBRACE',              r'\{'),
+        ('RBRACE',              r'\}'),
+        ('COMMA',               r','),
+        ('SEMICOLON',           r';'),
+
+        ('MISMATCH',            r'.'),
     ]
 
-    # TODO: Completar el mapeo de palabras reservadas a su tipo de Token exacto
     KEYWORD_MAP = {
-        'int': 'PR_INT',
-        'float': 'PR_FLOAT',
-        # 'if': 'PR_IF',
-        # 'else': 'PR_ELSE',
-        # ... agregar las demás palabras reservadas necesarias
+        'int':    'PR_INT',
+        'float':  'PR_FLOAT',
+        'if':     'PR_IF',
+        'else':   'PR_ELSE',
+        'while':  'PR_WHILE',
+        'return': 'PR_RETURN',
+        'void':   'PR_VOID',
+        'string': 'PR_STRING',
     }
 
     def __init__(self, code: str):
