@@ -17,12 +17,25 @@ class Token(NamedTuple):
     line: int
     column: int
 
+    def __str__(self) -> str:
+        return (
+            f"[TOKEN] Tipo: {self.type} | Lexema: '{self.value}' | "
+            f"Posición: [Línea {self.line}, Col {self.column}]"
+        )
+
+
 class LexicalError(NamedTuple):
     """Estructura para representar un error léxico detectado."""
     message: str
     char: str
     line: int
     column: int
+
+    def __str__(self) -> str:
+        return (
+            f"[ERROR LÉXICO] {self.message} '{self.char}' "
+            f"en Posición: [Línea {self.line}, Col {self.column}]"
+        )
 
 # ==============================================================================
 # 2. CLASE PRINCIPAL DEL ANALIZADOR LÉXICO
