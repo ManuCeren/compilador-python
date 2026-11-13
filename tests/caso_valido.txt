@@ -1,0 +1,5 @@
+int numero = 100;
+float precio = 25.50;
+if (numero >= 50) {
+    numero = numero + 1;
+}
