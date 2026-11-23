@@ -1,0 +1,11 @@
+int numero = 100;
+float precio;
+void saludar() {
+    imprimir("Hola");
+    ;
+    return;
+}
+int sumar(int a, int b) {
+    return a + b;
+}
+numero = sumar(2, 3);

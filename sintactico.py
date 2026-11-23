@@ -117,6 +117,9 @@ class Parser:
         return program, self.errors
 
     def statement(self) -> ASTNode:
+        if self.check(';'):
+            tok = self.advance()
+            return ASTNode('SentenciaVacia', line=tok.line, column=tok.column)
         if self.check('{'):
             return self.block()
         if self.check('if'):
@@ -133,7 +136,7 @@ class Parser:
             if self.peek().value == '(':
                 expr = self.primary()
                 self.expect(';', 'después de la llamada')
-                return ASTNode('ExpresionSentencia', children=[expr], line=expr.line, column=expr.column)
+                return ASTNode('SentenciaExpresion', children=[expr], line=expr.line, column=expr.column)
         raise self.error(f"Sentencia no válida: se encontró {self.describe(self.current)}")
 
     def declaration_or_function(self) -> ASTNode:
@@ -154,15 +157,16 @@ class Parser:
                     self.advance()
             self.expect(')', 'al cerrar los parámetros')
             cuerpo = self.block()
-            return ASTNode('Funcion', nombre.value, [ASTNode('TipoRetorno', tipo.value), ASTNode('Parametros', children=parametros), cuerpo], tipo.line, tipo.column)
+            return ASTNode('Funcion', f'{tipo.value} {nombre.value}', [ASTNode('Parametros', children=parametros), cuerpo], tipo.line, tipo.column)
         if tipo.value == 'void':
             raise self.error("'void' solo puede usarse como tipo de retorno de una función", tipo)
-        children = [ASTNode('Identificador', nombre.value, line=nombre.line, column=nombre.column)]
+        inicializador = []
         if self.check('='):
             self.advance()
-            children.append(self.expression())
+            inicializador.append(self.expression())
         self.expect(';', 'al finalizar la declaración')
-        return ASTNode('Declaracion', tipo.value, children, tipo.line, tipo.column)
+        variable = ASTNode('Variable', nombre.value, inicializador, nombre.line, nombre.column)
+        return ASTNode('Declaracion', tipo.value, [variable], tipo.line, tipo.column)
 
     def assignment(self) -> ASTNode:
         nombre = self.expect_id()
