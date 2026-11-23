@@ -1,0 +1,14 @@
+int numero = 100;
+float precio = 25.50;
+if (numero >= 50) {
+    numero = numero + 1;
+} else {
+    numero = 0;
+}
+while (numero < 105) {
+    numero = numero + 1;
+}
+int sumar(int a, int b) {
+    return a + b;
+}
+numero = sumar(numero, 2);

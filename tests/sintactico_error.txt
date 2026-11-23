@@ -1,0 +1,6 @@
+int numero = ;
+float precio = 2.5;
+numero = (4 + );
+while (numero < 10) {
+    numero = numero + 1;
+}

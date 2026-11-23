@@ -1,0 +1,11 @@
+int numero = 100;
+float precio = 25.50;
+
+@
+int edad = 20;
+
+#
+numero = numero + 5;
+
+$
+precio = 30.75;
