@@ -6,7 +6,7 @@ Notación: `*` significa cero o más repeticiones; `?` significa opcional; `|` s
 
 ```ebnf
 programa         = sentencia* ;
-sentencia        = declaracion | funcion | asignacion | llamada ";" | bloque | if | while | retorno ;
+sentencia        = declaracion | funcion | asignacion | llamada ";" | bloque | if | while | retorno | ";" ;
 declaracion      = tipo ID ("=" expresion)? ";" ;
 funcion          = (tipo | "void") ID "(" parametros? ")" bloque ;
 parametros       = parametro ("," parametro)* ;
@@ -32,7 +32,8 @@ argumentos       = expresion ("," expresion)* ;
 
 - `Programa`: `children` son sentencias.
 - `Bloque`: `children` son sentencias y abre ámbito.
-- `Declaracion`: `value` es tipo; `children[0]` es `Identificador`; `children[1]` opcional es inicializador.
+- `Declaracion`: `value` es tipo; `children` contiene nodos `Variable`.
+- `Variable`: `value` es nombre; `children[0]` opcional es inicializador.
 - `Asignacion`: `value` es nombre; `children[0]` es expresión.
 - `Identificador`: `value` es nombre.
 - `Entero`, `Flotante`, `Cadena`: `value` es lexema literal.
@@ -40,10 +41,15 @@ argumentos       = expresion ("," expresion)* ;
 - `OpUnaria`: `value` es operador; `children[0]` es operando.
 - `If`: `children[0]` es `Condicion`, `children[1]` es `Entonces`, `children[2]` opcional es `SiNo`.
 - `While`: `children[0]` es `Condicion`; `children[1]` es sentencia cuerpo.
-- `Funcion`: `value` es nombre; `children` son `TipoRetorno`, `Parametros`, `Bloque`.
+- `Funcion`: `value` es `"tipo nombre"` (por ejemplo, `"int sumar"`); `children[0]` es `Parametros` y `children[1]` es `Bloque`.
 - `Parametro`: `value` es tipo; `children[0]` es `Identificador`.
 - `Return`: cero o un hijo expresión.
 - `Llamada`: `value` es nombre; `children` son argumentos.
-- `ExpresionSentencia`: `children[0]` es una llamada.
+- `SentenciaExpresion`: `children[0]` es una llamada.
+- `SentenciaVacia`: no tiene hijos.
 
 La verificación semántica se realizará después; el archivo `Verificador.py` del docente usa tuplas y necesita un adaptador para este AST.
+
+## Compatibilidad con las plantillas posteriores
+
+La Fase 3 debe decorar con `.type` los nodos de expresión; la Fase 2 no realiza análisis de tipos. La plantilla de Fase 4 también contempla `For`, que **no está implementado** en este paquete ni confirmado en el lexer. El catedrático no entregó el enunciado completo al que hacen referencia los TODO, por lo que la integración definitiva debe validarse al desarrollar las Fases 3 y 4.
