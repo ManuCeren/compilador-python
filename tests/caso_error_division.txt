@@ -1,0 +1,4 @@
+void main() {
+    int divisor = 0;
+    imprimir(10 / divisor);
+}

@@ -84,6 +84,8 @@ class Lexer:
         ('OP_MINUS',            r'-'),
         ('OP_MUL',              r'\*'),
         ('OP_DIV',              r'/'),
+        ('OP_MOD',              r'%'),
+        ('OP_NOT',              r'!'),
 
         # Delimitadores
         ('LPAREN',              r'\('),
@@ -104,6 +106,7 @@ class Lexer:
         'if':     'PR_IF',
         'else':   'PR_ELSE',
         'while':  'PR_WHILE',
+        'for':    'PR_FOR',
         'return': 'PR_RETURN',
         'void':   'PR_VOID',
         'string': 'PR_STRING',
