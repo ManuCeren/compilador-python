@@ -29,7 +29,7 @@ class ParseError(Exception):
 
 LITERALS = {'INT_LITERAL': 'Entero', 'FLOAT_LITERAL': 'Flotante', 'STRING_LITERAL': 'Cadena'}
 TYPES = {'int', 'float', 'string'}
-STATEMENT_START = TYPES | {'if', 'while', 'return', '{', 'void'}
+STATEMENT_START = TYPES | {'if', 'while', 'for', 'return', '{', 'void'}
 
 class Parser:
     def __init__(self, tokens: List[Token]):
@@ -126,6 +126,8 @@ class Parser:
             return self.if_statement()
         if self.check('while'):
             return self.while_statement()
+        if self.check('for'):
+            return self.for_statement()
         if self.check('return'):
             return self.return_statement()
         if self.current.value in TYPES | {'void'} and self.current.type != 'ID':
@@ -139,10 +141,12 @@ class Parser:
                 return ASTNode('SentenciaExpresion', children=[expr], line=expr.line, column=expr.column)
         raise self.error(f"Sentencia no válida: se encontró {self.describe(self.current)}")
 
-    def declaration_or_function(self) -> ASTNode:
+    def declaration_or_function(self, allow_function=True) -> ASTNode:
         tipo = self.advance()
         nombre = self.expect_id('después del tipo')
         if self.check('('):
+            if not allow_function:
+                raise self.error('No se permite una función en el inicio de for')
             self.advance()
             parametros = []
             if not self.check(')'):
@@ -168,11 +172,12 @@ class Parser:
         variable = ASTNode('Variable', nombre.value, inicializador, nombre.line, nombre.column)
         return ASTNode('Declaracion', tipo.value, [variable], tipo.line, tipo.column)
 
-    def assignment(self) -> ASTNode:
+    def assignment(self, terminator=True) -> ASTNode:
         nombre = self.expect_id()
         self.expect('=', 'en la asignación')
         valor = self.expression()
-        self.expect(';', 'al finalizar la asignación')
+        if terminator:
+            self.expect(';', 'al finalizar la asignación')
         return ASTNode('Asignacion', nombre.value, [valor], nombre.line, nombre.column)
 
     def block(self) -> ASTNode:
@@ -207,6 +212,32 @@ class Parser:
         cond = self.expression()
         self.expect(')', "al cerrar la condición del 'while'")
         return ASTNode('While', children=[ASTNode('Condicion', children=[cond]), self.statement()], line=tok.line, column=tok.column)
+
+    def for_statement(self) -> ASTNode:
+        tok = self.advance()
+        self.expect('(', "después de 'for'")
+        children = []
+        if self.check(';'):
+            self.advance()
+        else:
+            if self.check(*TYPES):
+                inicio = self.declaration_or_function(allow_function=False)
+            elif self.current.type == 'ID' and self.peek().value == '=':
+                inicio = self.assignment()
+            else:
+                inicio = self.expression()
+                self.expect(';', 'después del inicio de for')
+            children.append(ASTNode('Inicio', children=[inicio], line=inicio.line, column=inicio.column))
+        if not self.check(';'):
+            cond = self.expression()
+            children.append(ASTNode('Condicion', children=[cond], line=cond.line, column=cond.column))
+        self.expect(';', 'después de la condición de for')
+        if not self.check(')'):
+            paso = self.assignment(terminator=False) if self.current.type == 'ID' and self.peek().value == '=' else self.expression()
+            children.append(ASTNode('Paso', children=[paso], line=paso.line, column=paso.column))
+        self.expect(')', 'al cerrar for')
+        children.append(self.statement())
+        return ASTNode('For', children=children, line=tok.line, column=tok.column)
 
     def return_statement(self) -> ASTNode:
         tok = self.advance()
